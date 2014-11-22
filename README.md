@@ -1,4 +1,3 @@
-commerce
-========
+# commerce
 
-Node.js e-commerce application
+Node.js e-commerce application built on the [Sails](http://sailsjs.org) framework.
