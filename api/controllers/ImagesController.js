@@ -6,6 +6,10 @@
  */
 
 module.exports = {
-	
+
+  test: function (req, res) {
+    return res.json({message:"This is a test message."});
+  }
+  
 };
 
