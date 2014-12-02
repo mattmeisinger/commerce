@@ -6,15 +6,17 @@
  */
 
 var AWS = require('aws-sdk');
-var bucketName = 'node-commerce-bucket3';
+var bucketName = 'node-commerce-bucket';
 var path = require('path');
+var fs = require('fs');
 
 module.exports = {
 
   createFolder: function (req, res) {
-    var s3 = new AWS.S3();
-    var folderName = req.query['folder'];
-    var name = req.query['name'];
+
+    // Get parameters
+    var folderName = req.param('folder');
+    var name = req.param('name');
     var newFolderPath = path.join(folderName, name);
 
     // First check if bucket exists
@@ -113,12 +115,69 @@ module.exports = {
   },
 
   uploadImage: function (req, res) {
-    var s3 = new AWS.S3();
-    var folderName = req.query['folder'];
-    var filename = req.query['filename'];
-    var params = {Bucket:bucketName,Key:path.join(folderName, filename)};
 
-    //TODO
+    // Uploading a file can only be a POST    
+    if(req.method !== 'POST')
+      return res.json({status:'GET not allowed'});
+
+    var s3 = new AWS.S3();
+    
+    // Get parameters
+    var folderPath = req.param('folder') || '';
+    var filename = req.param('filename');
+    console.log(folderPath);
+    console.log(filename);
+    var uploadFile = req.file('file');
+    var fullFilePath = folderPath ? path.join(folderPath, filename) : filename;
+    console.log("Uploading file: " + fullFilePath);
+    console.log(uploadFile);
+
+    uploadFile.upload(function onUploadComplete (err, files) {        
+
+      // Files will be uploaded to .tmp/uploads
+
+      // IF ERROR Return and send 500 error with error
+      if (err)
+        return res.serverError(err);
+
+      console.log("uploaded file:");
+      console.log(files);
+
+      folderExists(folderPath, function (result, err) {
+        if (err) {
+          res.json({
+            message: "Error checking if folder exists",
+            error: err
+          });
+        }
+        else if (result === false) {
+          res.json({
+            message: "Folder does not exist: " + folderPath
+          });
+        }
+        else {
+          // Upload file
+          var params = {
+            Bucket: bucketName,
+            Key: fullFilePath,
+            Body: fs.readFileSync(files[0].fd)
+          };
+          s3.putObject(params, function(err, data) {
+            if (err) {
+              res.json({
+                message: "Error uploading file to " + fullFilePath,
+                error: err
+              });
+            } else {
+              res.json({
+                message: "Uploaded file to " + fullFilePath,
+                data: data
+              });
+            }
+          });
+        }
+      });
+    });
   }
 
 };
@@ -166,7 +225,7 @@ function folderExists(folderName, response) {
   var s3 = new AWS.S3();
   var params = {
     Bucket:bucketName,
-    Key:path.join(folderName, '.folder')
+    Key:folderName ? path.join(folderName, '.folder') : '.folder'
   };
   s3.headObject(params, function (err, data) {
     if (err && err.code === 'NotFound') {
