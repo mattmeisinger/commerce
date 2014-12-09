@@ -10,6 +10,7 @@ var AWS = require('aws-sdk');
 var bucketName = 'node-commerce-bucket';
 var path = require('path');
 var fs = require('fs');
+var Q = require('q');
 
 module.exports = {
 
@@ -81,25 +82,53 @@ module.exports = {
 
     // Required parameter, the SKU of the product whose images should be returned.
     var sku = req.param('sku');
+    if (!sku) {
+      res.json({
+        message: "Error getting images",
+        error: "SKU parameter is required"
+      });
+    }
+    var s3PathPrefix = sku + '/';
 
-    // Optional parameter, which can be used to further refine the image search.
+    // Optional parameter, the image type can be used to further refine the image search.
     var imageType = req.param('imageType');
+    if (imageType) {
+      s3PathPrefix += imageType + '/';
+    }
 
     // API examples reference: http://jsg.azurewebsites.net/upload-and-get-images-from-s3-with-node-js/
+    var s3 = new AWS.S3();
     var params = {
-      Bucket: bucketName // TODO: use SKU and Image Type to filter results
+      Bucket: bucketName,
+      Prefix: s3PathPrefix
     };
     s3.listObjects(params, function(err, data){
       var bucketContents = data.Contents;
+      var items = []; // List of items to return
+
+      var urlRequests = []; // List of requests sent to AWS for signed urls, since we need to make sure these all complete
       for (var i = 0; i < bucketContents.length; i++){
         var urlParams = {
           Bucket: bucketName,
           Key: bucketContents[i].Key
         };
-        s3.getSignedUrl('getObject', urlParams, function(err, url){
-          console.log('the url of the image is', url);
+
+        var req = s3.getSignedUrl('getObject', urlParams, function(err, url){
+          items.push({
+            sku: bucketContents[i].Key.split('/')[0],
+            imageType: bucketContents[i].Key.split('/')[1],
+            filename: bucketContents[i].Key,
+            url: url
+          });
         });
+        urlRequests.push(req);
       }
+
+      // Wait for all signed url requests to come back before returning the results
+      Q.all(urlRequests)
+        .then(function () {
+          res.json(items);
+        });
     });
 
   }
