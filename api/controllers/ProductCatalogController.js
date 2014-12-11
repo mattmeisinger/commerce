@@ -5,7 +5,29 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+var vogels = require('vogels');
+vogels.AWS.config.loadFromPath('credentials.json');
+
+var ProductCatalog = vogels.define('ProductCatalog', function (schema) {
+  schema.String('id', {hashKey: true});
+  schema.String('category');
+  schema.Number('rating');
+});
+
+ProductCatalog.config({tableName: 'ProductCatalog'});
+
 module.exports = {
+
+  /**
+   * `ProductCatalogController.create()`
+   */
+  findAll: function (req, res) {
+    ProductCatalog
+      .scan()
+      .exec(function(err, products) {
+        return res.json(products);
+      });
+  },
 
   /**
    * `ProductCatalogController.create()`
@@ -16,6 +38,15 @@ module.exports = {
     });
   },
 
+
+  /**
+   * `ProductCatalogController.update()
+   */
+  update: function (req, res) {
+    return res.json({
+      todo: 'update() is not implemented yet!'
+    });
+  },
 
   /**
    * `ProductCatalogController.destroy()`
