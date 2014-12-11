@@ -7,8 +7,6 @@
 
 module.exports = {
 
-  connection: 'dynamoDb',
-
   attributes: {
     id: {
       type: 'integer',
@@ -22,5 +20,6 @@ module.exports = {
     comments: 'array',
     imageLink: 'string'
   }
+
 };
 
