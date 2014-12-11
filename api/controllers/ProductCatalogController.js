@@ -9,9 +9,13 @@ var vogels = require('vogels');
 vogels.AWS.config.loadFromPath('credentials.json');
 
 var ProductCatalog = vogels.define('ProductCatalog', function (schema) {
-  schema.String('id', {hashKey: true});
-  schema.String('category');
+  schema.UUID('id', {hashKey: true});
   schema.Number('rating');
+  schema.String('category');
+  schema.String('shortDescription');
+  schema.String('longDescription');
+  schema.StringSet('comments');
+  schema.String('imageLink');
 });
 
 ProductCatalog.config({tableName: 'ProductCatalog'});
@@ -33,8 +37,18 @@ module.exports = {
    * `ProductCatalogController.create()`
    */
   create: function (req, res) {
-    return res.json({
-      todo: 'create() is not implemented yet!'
+    var product = {
+      id:               req.param('id'),
+      rating:           req.param('rating') || 0,
+      category:         req.param('category') || "No category",
+      shortDescription: req.param('shortDescription') || "Empty description",
+      longDescription:  req.param('longDescription') || "Empty description",
+      comments:         req.param('comments') || [],
+      imageLink:        req.param('imageLink')
+    }
+
+    ProductCatalog.create(product, function(err, product) {
+      return err ? res.badRequest(err) : res.ok(product);
     });
   },
 
@@ -43,8 +57,18 @@ module.exports = {
    * `ProductCatalogController.update()
    */
   update: function (req, res) {
-    return res.json({
-      todo: 'update() is not implemented yet!'
+    var product = {
+      id:               req.param('id'),
+      rating:           req.param('rating') || 0,
+      category:         req.param('category') || "No category",
+      shortDescription: req.param('shortDescription') || "Empty description",
+      longDescription:  req.param('longDescription') || "Empty description",
+      comments:         req.param('comments') || [],
+      imageLink:        req.param('imageLink')
+    }
+
+    ProductCatalog.update(product, function(err, product) {
+      return err ? res.badRequest(err) : res.ok(product);
     });
   },
 
@@ -52,8 +76,8 @@ module.exports = {
    * `ProductCatalogController.destroy()`
    */
   destroy: function (req, res) {
-    return res.json({
-      todo: 'destroy() is not implemented yet!'
+    ProductCatalog.destroy(req.param('id'), function(err) {
+      return err ? res.badRequest(err) : res.ok();
     });
   },
 
@@ -62,8 +86,8 @@ module.exports = {
    * `ProductCatalogController.findByProductId()`
    */
   findByProductId: function (req, res) {
-    return res.json({
-      todo: 'findByProductId() is not implemented yet!'
+    ProductCatalog.get(req.param('id'), function(err, product) {
+      return err ? res.badRequest(err) : res.ok(product);
     });
   },
 
@@ -72,9 +96,12 @@ module.exports = {
    * `ProductCatalogController.findByCategory()`
    */
   findByCategory: function (req, res) {
-    return res.json({
-      todo: 'findByCategory() is not implemented yet!'
-    });
+    ProductCatalog
+      .scan()
+      .where('category').equals(req.param('category'))
+      .exec(function(err, products) {
+        return err ? res.badRequest(err) : res.ok(products);
+      });
   },
 
 
@@ -82,9 +109,12 @@ module.exports = {
    * `ProductCatalogController.findByRating()`
    */
   findByRating: function (req, res) {
-    return res.json({
-      todo: 'findByRating() is not implemented yet!'
-    });
+    ProductCatalog
+      .scan()
+      .where('rating').equals(req.param('rating'))
+      .exec(function(err, products) {
+        return err ? res.badRequest(err) : res.ok(products);
+      });
   }
 
 };
