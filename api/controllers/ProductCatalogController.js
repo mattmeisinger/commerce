@@ -115,7 +115,19 @@ module.exports = {
       .exec(function(err, products) {
         return err ? res.badRequest(err) : res.ok(products);
       });
-  }
+  },
 
+  /**
+   * `ProductCatalogController.findByCategoryRating()`
+   */
+  findByCategoryRating: function (req, res) {
+    ProductCatalog
+      .scan()
+      .where('category').equals(req.param('category'))
+      .where('rating').gte(req.param('rating'))
+      .exec(function(err, products) {
+        return err ? res.badRequest(err) : res.ok(products);
+      });
+  },
 };
 
