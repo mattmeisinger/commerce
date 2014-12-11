@@ -34,7 +34,7 @@ module.exports.routes = {
 
   '/': {
     view: 'homepage'
-  }
+  },
 
   /***************************************************************************
   *                                                                          *
@@ -45,5 +45,13 @@ module.exports.routes = {
   * for configuration options and examples.                                  *
   *                                                                          *
   ***************************************************************************/
+  'get    /api/products':                    'ProductCatalog.findAll',
+  'get    /api/products/category/:category': 'ProductCatalog.findByCategory',
+  'get    /api/products/rating/:rating':     'ProductCatalog.findByRating',
+  'get    /api/product/id/:id':              'ProductCatalog.findByProductId',
+  'post   /api/product/create':              'ProductCatalog.create',
+  'put    /api/product/:id':                 'ProductCatalog.update',
+  'delete /api/product/:id':                 'ProductCatalog.destroy',
 
+  'get    /api/products/category/:category/rating/:rating': 'ProductCatalog.findByCategoryRating'
 };
