@@ -49,7 +49,7 @@ module.exports.routes = {
   'get    /api/products/category/:category': 'ProductCatalog.findByCategory',
   'get    /api/products/rating/:rating':     'ProductCatalog.findByRating',
   'get    /api/product/id/:id':              'ProductCatalog.findByProductId',
-  'post   /api/product':                     'ProductCatalog.create',
+  'post   /api/product/create':              'ProductCatalog.create',
   'put    /api/product/:id':                 'ProductCatalog.update',
   'delete /api/product/:id':                 'ProductCatalog.destroy'
 
