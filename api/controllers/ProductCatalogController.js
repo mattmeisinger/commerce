@@ -43,7 +43,7 @@ module.exports = {
       category:         req.param('category') || "No category",
       shortDescription: req.param('shortDescription') || "Empty description",
       longDescription:  req.param('longDescription') || "Empty description",
-      comments:         req.param('comments') || [],
+      comments:         req.param('comments') || [""],
       imageLink:        req.param('imageLink')
     }
 
@@ -63,7 +63,7 @@ module.exports = {
       category:         req.param('category') || "No category",
       shortDescription: req.param('shortDescription') || "Empty description",
       longDescription:  req.param('longDescription') || "Empty description",
-      comments:         req.param('comments') || [],
+      comments:         req.param('comments') || [""],
       imageLink:        req.param('imageLink')
     }
 
