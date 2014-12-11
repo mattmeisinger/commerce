@@ -111,7 +111,7 @@ module.exports = {
   findByRating: function (req, res) {
     ProductCatalog
       .scan()
-      .where('rating').equals(req.param('rating'))
+      .where('rating').gte(req.param('rating'))
       .exec(function(err, products) {
         return err ? res.badRequest(err) : res.ok(products);
       });
